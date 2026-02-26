@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clientes</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <header class="page-header">
+      <div>
+        <h1>Clientes</h1>
+        <p class="page-subtitle">Acompanhe e identifique rapidamente os dados principais de cada cliente.</p>
+      </div>
+      <a href="form.html" class="btn btn-primary">Novo cliente</a>
+    </header>
+    <div class="context-bar">
+      <span class="meta-label">Total cadastrado</span>
+      <strong id="clientes-total" class="meta-value">-</strong>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-primary">Nome</th>
+            <th class="col-secondary">Email</th>
+            <th>Telefone</th>
+            <th>Endereço</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="lista-clientes">
+          <tr>
+            <td colspan="5" class="empty-state">Carregando...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script src="js/listagem.js"></script>
+</body>
+</html>
