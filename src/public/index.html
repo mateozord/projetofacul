@@ -19,14 +19,18 @@
       <span class="meta-label">Total cadastrado</span>
       <strong id="clientes-total" class="meta-value">-</strong>
     </div>
+    <div class="busca-bar">
+      <label for="busca" class="busca-label">Busca</label>
+      <input type="text" id="busca" class="busca-input" placeholder="Buscar por nome ou email" autocomplete="off">
+    </div>
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
-            <th class="col-primary">Nome</th>
-            <th class="col-secondary">Email</th>
-            <th>Telefone</th>
-            <th>Endereço</th>
+            <th class="col-primary sortable" data-sort="nome" title="Ordenar por nome">Nome</th>
+            <th class="col-secondary sortable" data-sort="email" title="Ordenar por email">Email</th>
+            <th class="sortable" data-sort="telefone" title="Ordenar por telefone">Telefone</th>
+            <th class="sortable" data-sort="endereco" title="Ordenar por endereço">Endereço</th>
             <th>Ações</th>
           </tr>
         </thead>

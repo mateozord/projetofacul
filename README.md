@@ -72,3 +72,11 @@ Exemplo de body para POST/PUT:
 ```
 
 `nome` e `email` são obrigatórios; `telefone` e `endereco` são opcionais.
+
+## Board do projeto
+
+**Link público do board (para entrega ao professor):**
+
+- **Link do board:** https://github.com/users/mateozord/projects/3
+
+O board está no GitHub Projects (aba **Projects** do repositório), com colunas Todo | In Progress | Done e os cards das entregas do CRUD. Está público para o professor acessar.
