@@ -84,8 +84,17 @@ const excluir = async (req, res) => {
   }
 };
 
+const TZ_SP = 'America/Sao_Paulo';
+/** Limite de dias no eixo: acima disso o gráfico usa agrupamento mensal (legibilidade). */
+const MAX_DIAS_SERIE_DIARIA = 120;
+
 function diaEmSaoPaulo(date) {
-  return date.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+  return date.toLocaleDateString('en-CA', { timeZone: TZ_SP });
+}
+
+function mesEmSaoPaulo(date) {
+  const ymd = date.toLocaleDateString('en-CA', { timeZone: TZ_SP });
+  return ymd.slice(0, 7);
 }
 
 /** Agrupa cadastros por dia civil em America/Sao_Paulo (sem $dateToString no Mongo — evita erro em versões sem timezone na agregação). */
@@ -99,6 +108,46 @@ function contarPorDiaSaoPaulo(docs) {
   return porDia;
 }
 
+function contarPorMesSaoPaulo(docs) {
+  const porMes = {};
+  for (const doc of docs) {
+    if (!doc.createdAt) continue;
+    const chave = mesEmSaoPaulo(new Date(doc.createdAt));
+    porMes[chave] = (porMes[chave] || 0) + 1;
+  }
+  return porMes;
+}
+
+/** Lista todos os meses YYYY-MM entre minYM e maxYM (inclusive). */
+function mesesEntreInclusive(minYM, maxYM) {
+  const [y1, m1] = minYM.split('-').map(Number);
+  const [y2, m2] = maxYM.split('-').map(Number);
+  const out = [];
+  let y = y1;
+  let m = m1;
+  while (y < y2 || (y === y2 && m <= m2)) {
+    out.push(`${y}-${String(m).padStart(2, '0')}`);
+    m += 1;
+    if (m > 12) {
+      m = 1;
+      y += 1;
+    }
+  }
+  return out;
+}
+
+/** Caminha dia a dia de `inicio` até `fim` (objects Date), gerando chaves YYYY-MM-DD em SP. */
+function enumerarDias(inicio, fim) {
+  const keys = [];
+  const cur = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+  const ult = new Date(fim.getFullYear(), fim.getMonth(), fim.getDate());
+  while (cur <= ult) {
+    keys.push(diaEmSaoPaulo(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return keys;
+}
+
 const estatisticasResumo = async (req, res) => {
   try {
     const total = await Cliente.countDocuments();
@@ -108,22 +157,51 @@ const estatisticasResumo = async (req, res) => {
     const novosUltimos7Dias = await Cliente.countDocuments({ createdAt: { $gte: limite7 } });
     const novosUltimos30Dias = await Cliente.countDocuments({ createdAt: { $gte: limite30 } });
 
-    const janelaExtraMs = 18 * 24 * 60 * 60 * 1000;
-    const desde = new Date(agora.getTime() - janelaExtraMs);
-    const docsRecentes = await Cliente.find({ createdAt: { $gte: desde } })
-      .select('createdAt')
-      .lean();
-    const porDia = contarPorDiaSaoPaulo(docsRecentes);
+    const docsDatas = await Cliente.find({}).select('createdAt').lean();
+    const porDiaTodos = contarPorDiaSaoPaulo(docsDatas);
 
-    const serieCadastrosPorDia = [];
-    for (let i = 13; i >= 0; i -= 1) {
-      const d = new Date(agora);
-      d.setDate(d.getDate() - i);
-      const chave = diaEmSaoPaulo(d);
-      serieCadastrosPorDia.push({
-        dia: chave,
-        quantidade: porDia[chave] || 0,
-      });
+    let graficoGranularidade = 'dia';
+    let serieCadastros = [];
+    let graficoDescricao = '';
+
+    if (total === 0) {
+      graficoDescricao = 'Nenhum cadastro ainda.';
+    } else {
+      let primeiro = null;
+      for (const doc of docsDatas) {
+        if (!doc.createdAt) continue;
+        const d = new Date(doc.createdAt);
+        if (!primeiro || d < primeiro) primeiro = d;
+      }
+      if (!primeiro) primeiro = agora;
+
+      const primeiroDiaStr = diaEmSaoPaulo(primeiro);
+      const hojeStr = diaEmSaoPaulo(agora);
+      const diasKeys = enumerarDias(primeiro, agora);
+      const numDias = diasKeys.length;
+
+      if (numDias <= MAX_DIAS_SERIE_DIARIA) {
+        graficoGranularidade = 'dia';
+        serieCadastros = diasKeys.map((periodo) => ({
+          periodo,
+          quantidade: porDiaTodos[periodo] || 0,
+        }));
+        graficoDescricao =
+          numDias === 1
+            ? `Cadastros no dia ${primeiroDiaStr} (fuso ${TZ_SP}).`
+            : `Todos os cadastros por dia — ${numDias} dia${numDias === 1 ? '' : 's'} de ${primeiroDiaStr} a ${hojeStr} (${TZ_SP}).`;
+      } else {
+        graficoGranularidade = 'mes';
+        const porMes = contarPorMesSaoPaulo(docsDatas);
+        const minMes = mesEmSaoPaulo(primeiro);
+        const maxMes = mesEmSaoPaulo(agora);
+        const meses = mesesEntreInclusive(minMes, maxMes);
+        serieCadastros = meses.map((periodo) => ({
+          periodo,
+          quantidade: porMes[periodo] || 0,
+        }));
+        graficoDescricao = `Histórico completo por mês (${meses.length} mês${meses.length === 1 ? '' : 'es'}), de ${minMes} a ${maxMes}. Acima de ${MAX_DIAS_SERIE_DIARIA} dias no calendário o gráfico agrupa por mês para melhor leitura.`;
+      }
     }
 
     const cadastrosComTelefone = await Cliente.countDocuments({
@@ -132,7 +210,7 @@ const estatisticasResumo = async (req, res) => {
 
     const ultimosCadastros = await Cliente.find()
       .sort({ createdAt: -1 })
-      .limit(5)
+      .limit(15)
       .select('nome email createdAt')
       .lean();
 
@@ -142,7 +220,11 @@ const estatisticasResumo = async (req, res) => {
       novosUltimos30Dias,
       cadastrosComTelefone,
       percentualComTelefone: total === 0 ? 0 : Math.round((cadastrosComTelefone / total) * 100),
-      serieCadastrosPorDia,
+      graficoGranularidade,
+      graficoDescricao,
+      serieCadastros,
+      serieCadastrosPorDia:
+        graficoGranularidade === 'dia' ? serieCadastros.map(({ periodo, quantidade }) => ({ dia: periodo, quantidade })) : [],
       ultimosCadastros,
     });
   } catch (err) {

@@ -13,6 +13,12 @@ function labelDiaCurto(isoDia) {
   return dt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
 }
 
+function labelMesCurto(anoMes) {
+  const [y, m] = anoMes.split('-').map(Number);
+  const dt = new Date(y, m - 1, 1);
+  return dt.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+}
+
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
@@ -21,11 +27,23 @@ function escapeHtml(text) {
 
 let chartInstance = null;
 
-function renderChart(serie) {
+function renderChart(payload) {
   const canvas = document.getElementById('chart-cadastros');
   if (!canvas || typeof Chart === 'undefined') return;
 
-  const labels = serie.map((x) => labelDiaCurto(x.dia));
+  const granularidade = payload.graficoGranularidade || 'dia';
+  const serie = payload.serieCadastros || [];
+
+  if (!serie.length) {
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = null;
+    return;
+  }
+
+  const labels =
+    granularidade === 'mes'
+      ? serie.map((x) => labelMesCurto(x.periodo))
+      : serie.map((x) => labelDiaCurto(x.periodo));
   const values = serie.map((x) => x.quantidade);
 
   if (chartInstance) chartInstance.destroy();
@@ -36,11 +54,11 @@ function renderChart(serie) {
       labels,
       datasets: [
         {
-          label: 'Novos cadastros',
+          label: granularidade === 'mes' ? 'Cadastros no mês' : 'Cadastros no dia',
           data: values,
           backgroundColor: 'rgba(37, 99, 235, 0.72)',
           borderRadius: 6,
-          maxBarThickness: 36,
+          maxBarThickness: granularidade === 'mes' ? 48 : 36,
         },
       ],
     },
@@ -53,7 +71,7 @@ function renderChart(serie) {
           callbacks: {
             title: (items) => {
               const i = items[0]?.dataIndex;
-              return serie[i] ? serie[i].dia : '';
+              return serie[i] ? serie[i].periodo : '';
             },
           },
         },
@@ -64,7 +82,12 @@ function renderChart(serie) {
           ticks: { precision: 0 },
         },
         x: {
-          ticks: { maxRotation: 45, minRotation: 0 },
+          ticks: {
+            maxRotation: granularidade === 'mes' ? 60 : 45,
+            minRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: granularidade === 'mes' ? 24 : 45,
+          },
         },
       },
     },
@@ -127,7 +150,21 @@ async function carregar() {
     const sub = document.getElementById('stat-tel-sub');
     if (sub) sub.textContent = `${comTel} cliente${comTel === 1 ? '' : 's'}`;
 
-    renderChart(data.serieCadastrosPorDia || []);
+    const tituloChart = document.getElementById('dash-chart-title');
+    const descChart = document.getElementById('dash-chart-desc');
+    if (tituloChart) {
+      tituloChart.textContent =
+        data.graficoGranularidade === 'mes'
+          ? 'Cadastros por mês (histórico completo)'
+          : 'Cadastros por dia (histórico completo)';
+    }
+    if (descChart) {
+      descChart.textContent =
+        data.graficoDescricao ||
+        'Distribuição de todos os cadastros no tempo (fuso America/São_Paulo).';
+    }
+
+    renderChart(data);
     preencherUltimos(data.ultimosCadastros || []);
 
     if (erroEl) erroEl.style.display = 'none';

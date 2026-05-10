@@ -129,6 +129,12 @@ body {
   color: var(--text-muted);
 }
 
+.dash-section-hint {
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
 .dash-chart-wrap {
   position: relative;
   height: min(360px, 70vw);

@@ -87,7 +87,7 @@ No formulário, o campo **telefone** aceita máscara no padrão brasileiro `(DD)
 
 **Painel e exportação**
 
-- O **Painel** consome estatísticas no servidor (`GET /api/dashboard/resumo`) e exibe um **gráfico de barras** (Chart.js) com cadastros por dia nos últimos 14 dias (fuso America/São_Paulo), além de cartões com totais e indicador de telefone preenchido.
+- O **Painel** consome estatísticas no servidor (`GET /api/dashboard/resumo`) e exibe um **gráfico de barras** (Chart.js) com **todo o histórico**: por **dia** desde o primeiro até o último cadastro quando o intervalo tem até 120 dias no calendário; acima disso, o mesmo período é mostrado **por mês** para manter o gráfico legível (fuso America/São_Paulo). Há também cartões com totais e indicador de telefone preenchido.
 - Na listagem, **Exportar CSV** gera um arquivo separado por `;` (UTF-8 com BOM) com exatamente os registros visíveis após busca e ordenação.
 
 ## Board do projeto
