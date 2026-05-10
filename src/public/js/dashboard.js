@@ -155,8 +155,8 @@ async function carregar() {
     if (tituloChart) {
       tituloChart.textContent =
         data.graficoGranularidade === 'mes'
-          ? 'Cadastros por mês (histórico completo)'
-          : 'Cadastros por dia (histórico completo)';
+          ? 'Cadastros por mês (só meses com cadastro)'
+          : 'Cadastros por dia (só datas com cadastro)';
     }
     if (descChart) {
       descChart.textContent =

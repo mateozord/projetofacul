@@ -175,32 +175,43 @@ const estatisticasResumo = async (req, res) => {
       }
       if (!primeiro) primeiro = agora;
 
-      const primeiroDiaStr = diaEmSaoPaulo(primeiro);
-      const hojeStr = diaEmSaoPaulo(agora);
       const diasKeys = enumerarDias(primeiro, agora);
-      const numDias = diasKeys.length;
+      const numDiasCalendario = diasKeys.length;
 
-      if (numDias <= MAX_DIAS_SERIE_DIARIA) {
+      if (numDiasCalendario <= MAX_DIAS_SERIE_DIARIA) {
         graficoGranularidade = 'dia';
-        serieCadastros = diasKeys.map((periodo) => ({
+        const diasComRegistro = Object.keys(porDiaTodos)
+          .filter((k) => (porDiaTodos[k] || 0) > 0)
+          .sort();
+        serieCadastros = diasComRegistro.map((periodo) => ({
           periodo,
-          quantidade: porDiaTodos[periodo] || 0,
+          quantidade: porDiaTodos[periodo],
         }));
-        graficoDescricao =
-          numDias === 1
-            ? `Cadastros no dia ${primeiroDiaStr} (fuso ${TZ_SP}).`
-            : `Todos os cadastros por dia — ${numDias} dia${numDias === 1 ? '' : 's'} de ${primeiroDiaStr} a ${hojeStr} (${TZ_SP}).`;
+        if (serieCadastros.length === 0) {
+          graficoDescricao = 'Nenhum dia com cadastro para exibir.';
+        } else if (serieCadastros.length === 1) {
+          graficoDescricao = `Um dia com cadastro: ${serieCadastros[0].periodo} (${TZ_SP}).`;
+        } else {
+          const de = diasComRegistro[0];
+          const ate = diasComRegistro[diasComRegistro.length - 1];
+          graficoDescricao = `Somente dias em que houve cadastro (${serieCadastros.length} dia${serieCadastros.length === 1 ? '' : 's'}), de ${de} a ${ate}. Barras omitidas nos dias sem novos cadastros. Fuso ${TZ_SP}.`;
+        }
       } else {
         graficoGranularidade = 'mes';
         const porMes = contarPorMesSaoPaulo(docsDatas);
         const minMes = mesEmSaoPaulo(primeiro);
         const maxMes = mesEmSaoPaulo(agora);
         const meses = mesesEntreInclusive(minMes, maxMes);
-        serieCadastros = meses.map((periodo) => ({
-          periodo,
-          quantidade: porMes[periodo] || 0,
-        }));
-        graficoDescricao = `Histórico completo por mês (${meses.length} mês${meses.length === 1 ? '' : 'es'}), de ${minMes} a ${maxMes}. Acima de ${MAX_DIAS_SERIE_DIARIA} dias no calendário o gráfico agrupa por mês para melhor leitura.`;
+        serieCadastros = meses
+          .map((periodo) => ({
+            periodo,
+            quantidade: porMes[periodo] || 0,
+          }))
+          .filter((x) => x.quantidade > 0);
+        graficoDescricao =
+          serieCadastros.length === 0
+            ? 'Nenhum mês com cadastro para exibir.'
+            : `Somente meses com pelo menos um cadastro (${serieCadastros.length} período${serieCadastros.length === 1 ? '' : 's'}). Acima de ${MAX_DIAS_SERIE_DIARIA} dias no calendário o gráfico usa agrupamento mensal (sem meses vazios).`;
       }
     }
 
