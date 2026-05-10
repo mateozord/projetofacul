@@ -88,6 +88,17 @@ function diaEmSaoPaulo(date) {
   return date.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
 }
 
+/** Agrupa cadastros por dia civil em America/Sao_Paulo (sem $dateToString no Mongo — evita erro em versões sem timezone na agregação). */
+function contarPorDiaSaoPaulo(docs) {
+  const porDia = {};
+  for (const doc of docs) {
+    if (!doc.createdAt) continue;
+    const chave = diaEmSaoPaulo(new Date(doc.createdAt));
+    porDia[chave] = (porDia[chave] || 0) + 1;
+  }
+  return porDia;
+}
+
 const estatisticasResumo = async (req, res) => {
   try {
     const total = await Cliente.countDocuments();
@@ -97,22 +108,12 @@ const estatisticasResumo = async (req, res) => {
     const novosUltimos7Dias = await Cliente.countDocuments({ createdAt: { $gte: limite7 } });
     const novosUltimos30Dias = await Cliente.countDocuments({ createdAt: { $gte: limite30 } });
 
-    const inicio14 = new Date(agora);
-    inicio14.setDate(inicio14.getDate() - 13);
-    inicio14.setHours(0, 0, 0, 0);
-
-    const agg = await Cliente.aggregate([
-      { $match: { createdAt: { $gte: inicio14 } } },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'America/Sao_Paulo' },
-          },
-          quantidade: { $sum: 1 },
-        },
-      },
-    ]);
-    const porDia = Object.fromEntries(agg.map((x) => [x._id, x.quantidade]));
+    const janelaExtraMs = 18 * 24 * 60 * 60 * 1000;
+    const desde = new Date(agora.getTime() - janelaExtraMs);
+    const docsRecentes = await Cliente.find({ createdAt: { $gte: desde } })
+      .select('createdAt')
+      .lean();
+    const porDia = contarPorDiaSaoPaulo(docsRecentes);
 
     const serieCadastrosPorDia = [];
     for (let i = 13; i >= 0; i -= 1) {
@@ -145,7 +146,8 @@ const estatisticasResumo = async (req, res) => {
       ultimosCadastros,
     });
   } catch (err) {
-    res.status(500).json({ erro: err.message });
+    console.error('estatisticasResumo:', err);
+    res.status(500).json({ erro: err.message || 'Erro ao montar estatísticas.' });
   }
 };
 

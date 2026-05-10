@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const connectDB = require('./src/config/db');
+const clienteController = require('./src/controllers/clienteController');
 const clientesRouter = require('./src/routes/clientes');
 
 connectDB();
@@ -12,6 +13,8 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+/** Rota específica antes do router evita qualquer ambiguidade com `/:id`. */
+app.get('/api/clientes/estatisticas/resumo', clienteController.estatisticasResumo);
 app.use('/api/clientes', clientesRouter);
 app.use(express.static(path.join(__dirname, 'src', 'public')));
 

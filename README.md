@@ -44,6 +44,8 @@ Para MongoDB Atlas, use a URI de conexão fornecida pelo cluster (ex.: `mongodb+
 npm start
 ```
 
+Após atualizar o código, **pare e suba o servidor de novo** (`Ctrl+C` e `npm start` ou `npm run dev`), para o endpoint do painel (`/api/clientes/estatisticas/resumo`) e as mudanças na API entrarem em vigor.
+
 3. Acesse no navegador: **http://localhost:3000**
 
 - **Listagem:** `http://localhost:3000` ou `http://localhost:3000/index.html` (inclui **exportação CSV** da visualização atual — busca e ordenação)

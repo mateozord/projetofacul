@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const clienteController = require('../controllers/clienteController');
 
-router.get('/estatisticas/resumo', clienteController.estatisticasResumo);
 router.get('/', clienteController.listar);
 router.get('/:id', clienteController.buscarPorId);
 router.post('/', clienteController.criar);

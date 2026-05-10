@@ -96,7 +96,9 @@ async function carregar() {
   try {
     const res = await fetch(API_STATS);
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.erro || 'Não foi possível carregar o painel.');
+    if (!res.ok) {
+      throw new Error(data.erro || res.statusText || 'Não foi possível carregar o painel.');
+    }
 
     document.getElementById('stat-total').textContent = String(data.total ?? 0);
     document.getElementById('stat-7').textContent = String(data.novosUltimos7Dias ?? 0);
