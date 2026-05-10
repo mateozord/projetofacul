@@ -71,4 +71,4 @@ Você pode colar o link no README (seção "Board do projeto"), no e-mail ou no 
 ## Planejamento e cronograma
 
 **Nas próximas atividades do projeto, devemos seguir o cronograma do board.**  
-A **Entrega 1** (busca e filtros na API) está concluída. A **Entrega 2** (busca e ordenação na listagem), a **Entrega 3** (email único e máscara de telefone no formulário) e a **Entrega 4** (índice único em email no MongoDB e coluna **Cadastrado em**) foram implementadas no código e refletidas nos cards correspondentes do board (**Done**). Consultar o board para novas tarefas ou melhorias futuras.
+A **Entrega 1** (busca e filtros na API) está concluída. A **Entrega 2** (busca e ordenação na listagem), a **Entrega 3** (email único e máscara de telefone no formulário) e a **Entrega 4** (índice único em email no MongoDB e coluna **Cadastrado em**) foram implementadas no código e refletidas nos cards correspondentes do board (**Done**). Foi adicionado ao board o card **Painel (dashboard) analítico** (estatísticas, gráfico, export CSV, API), também em **Done**. Consultar o board para novas tarefas ou melhorias futuras.
