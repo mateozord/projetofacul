@@ -44,7 +44,7 @@ Para MongoDB Atlas, use a URI de conexão fornecida pelo cluster (ex.: `mongodb+
 npm start
 ```
 
-Após atualizar o código, **pare e suba o servidor de novo** (`Ctrl+C` e `npm start` ou `npm run dev`), para o endpoint do painel (`/api/clientes/estatisticas/resumo`) e as mudanças na API entrarem em vigor.
+Após atualizar o código, **pare e suba o servidor de novo** (`Ctrl+C` e `npm start` ou `npm run dev`). O painel usa **`GET /api/dashboard/resumo`** (também há **`GET /api/clientes/estatisticas/resumo`** como alternativa). Abra sempre pelo Node (**http://localhost:3000/dashboard**) — se abrir o HTML por outra ferramenta em outra porta, o `js/api-base.js` redireciona as chamadas para a porta **3000**.
 
 3. Acesse no navegador: **http://localhost:3000**
 
@@ -58,7 +58,8 @@ Após atualizar o código, **pare e suba o servidor de novo** (`Ctrl+C` e `npm s
 | Método | Rota                | Descrição                 |
 |--------|----------------------|----------------------------|
 | GET    | `/api/clientes`      | Lista todos os clientes   |
-| GET    | `/api/clientes/estatisticas/resumo` | Resumo para o painel: totais, série diária (14 dias), últimos cadastros |
+| GET    | `/api/dashboard/resumo` | **Painel:** totais, série diária (14 dias), últimos cadastros |
+| GET    | `/api/clientes/estatisticas/resumo` | Igual ao resumo do painel (rota alternativa) |
 | GET    | `/api/clientes/:id`  | Retorna um cliente por ID |
 | POST   | `/api/clientes`      | Cria cliente (body JSON)   |
 | PUT    | `/api/clientes/:id`  | Atualiza cliente           |
@@ -86,7 +87,7 @@ No formulário, o campo **telefone** aceita máscara no padrão brasileiro `(DD)
 
 **Painel e exportação**
 
-- O **Painel** consome estatísticas agregadas no servidor (`GET /api/clientes/estatisticas/resumo`) e exibe um **gráfico de barras** (Chart.js) com cadastros por dia nos últimos 14 dias (fuso America/São_Paulo), além de cartões com totais e indicador de telefone preenchido.
+- O **Painel** consome estatísticas no servidor (`GET /api/dashboard/resumo`) e exibe um **gráfico de barras** (Chart.js) com cadastros por dia nos últimos 14 dias (fuso America/São_Paulo), além de cartões com totais e indicador de telefone preenchido.
 - Na listagem, **Exportar CSV** gera um arquivo separado por `;` (UTF-8 com BOM) com exatamente os registros visíveis após busca e ordenação.
 
 ## Board do projeto

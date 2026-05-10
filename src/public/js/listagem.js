@@ -1,4 +1,5 @@
-const API_BASE = '/api/clientes';
+const API_BASE =
+  typeof window.apiUrl === 'function' ? window.apiUrl('/api/clientes') : '/api/clientes';
 const tbody = document.getElementById('lista-clientes');
 const totalEl = document.getElementById('clientes-total');
 

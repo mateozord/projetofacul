@@ -1,4 +1,4 @@
-const API_STATS = '/api/clientes/estatisticas/resumo';
+const API_STATS_PATH = '/api/dashboard/resumo';
 
 function formatCadastro(iso) {
   if (!iso) return '—';
@@ -94,10 +94,27 @@ async function carregar() {
   const erroEl = document.getElementById('dash-erro');
   const statsEl = document.getElementById('dash-stats');
   try {
-    const res = await fetch(API_STATS);
-    const data = await res.json().catch(() => ({}));
+    const primary =
+      typeof window.apiUrl === 'function' ? window.apiUrl(API_STATS_PATH) : API_STATS_PATH;
+    let res = await fetch(primary);
+    let data = await res.json().catch(() => ({}));
+
+    if (!res.ok && res.status === 404) {
+      const legacy =
+        typeof window.apiUrl === 'function'
+          ? window.apiUrl('/api/clientes/estatisticas/resumo')
+          : '/api/clientes/estatisticas/resumo';
+      res = await fetch(legacy);
+      data = await res.json().catch(() => ({}));
+    }
+
     if (!res.ok) {
-      throw new Error(data.erro || res.statusText || 'Não foi possível carregar o painel.');
+      let msg = data.erro || res.statusText || 'Não foi possível carregar o painel.';
+      if (res.status === 404) {
+        msg =
+          'API do painel não encontrada (404). Use o site pelo Node em http://localhost:3000/dashboard , com MongoDB ligado e rode npm run dev (ou npm start).';
+      }
+      throw new Error(msg);
     }
 
     document.getElementById('stat-total').textContent = String(data.total ?? 0);

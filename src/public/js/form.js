@@ -1,4 +1,5 @@
-const API_BASE = '/api/clientes';
+const API_BASE =
+  typeof window.apiUrl === 'function' ? window.apiUrl('/api/clientes') : '/api/clientes';
 
 const form = document.getElementById('form-cliente');
 const title = document.getElementById('form-title');

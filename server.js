@@ -13,7 +13,9 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-/** Rota específica antes do router evita qualquer ambiguidade com `/:id`. */
+/** Painel: path curto e estável (evita 404 por ordem de rotas / proxy). */
+app.get('/api/dashboard/resumo', clienteController.estatisticasResumo);
+/** Legado / alternativa */
 app.get('/api/clientes/estatisticas/resumo', clienteController.estatisticasResumo);
 app.use('/api/clientes', clientesRouter);
 app.use(express.static(path.join(__dirname, 'src', 'public')));
