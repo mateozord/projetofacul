@@ -8,12 +8,19 @@
 </head>
 <body>
   <div class="container">
+    <nav class="site-nav" aria-label="Principal">
+      <span class="site-nav-link site-nav-current" aria-current="page">Listagem</span>
+      <a href="dashboard.html" class="site-nav-link">Painel</a>
+    </nav>
     <header class="page-header">
       <div>
         <h1>Clientes</h1>
         <p class="page-subtitle">Acompanhe e identifique rapidamente os dados principais de cada cliente.</p>
       </div>
-      <a href="form.html" class="btn btn-primary">Novo cliente</a>
+      <div class="page-header-actions">
+        <button type="button" id="btn-exportar-csv" class="btn btn-secondary">Exportar CSV</button>
+        <a href="form.html" class="btn btn-primary">Novo cliente</a>
+      </div>
     </header>
     <div class="context-bar">
       <span class="meta-label">Total cadastrado</span>

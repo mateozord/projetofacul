@@ -84,10 +84,76 @@ const excluir = async (req, res) => {
   }
 };
 
+function diaEmSaoPaulo(date) {
+  return date.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+}
+
+const estatisticasResumo = async (req, res) => {
+  try {
+    const total = await Cliente.countDocuments();
+    const agora = new Date();
+    const limite7 = new Date(agora.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const limite30 = new Date(agora.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const novosUltimos7Dias = await Cliente.countDocuments({ createdAt: { $gte: limite7 } });
+    const novosUltimos30Dias = await Cliente.countDocuments({ createdAt: { $gte: limite30 } });
+
+    const inicio14 = new Date(agora);
+    inicio14.setDate(inicio14.getDate() - 13);
+    inicio14.setHours(0, 0, 0, 0);
+
+    const agg = await Cliente.aggregate([
+      { $match: { createdAt: { $gte: inicio14 } } },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'America/Sao_Paulo' },
+          },
+          quantidade: { $sum: 1 },
+        },
+      },
+    ]);
+    const porDia = Object.fromEntries(agg.map((x) => [x._id, x.quantidade]));
+
+    const serieCadastrosPorDia = [];
+    for (let i = 13; i >= 0; i -= 1) {
+      const d = new Date(agora);
+      d.setDate(d.getDate() - i);
+      const chave = diaEmSaoPaulo(d);
+      serieCadastrosPorDia.push({
+        dia: chave,
+        quantidade: porDia[chave] || 0,
+      });
+    }
+
+    const cadastrosComTelefone = await Cliente.countDocuments({
+      telefone: { $exists: true, $nin: [null, ''] },
+    });
+
+    const ultimosCadastros = await Cliente.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select('nome email createdAt')
+      .lean();
+
+    res.json({
+      total,
+      novosUltimos7Dias,
+      novosUltimos30Dias,
+      cadastrosComTelefone,
+      percentualComTelefone: total === 0 ? 0 : Math.round((cadastrosComTelefone / total) * 100),
+      serieCadastrosPorDia,
+      ultimosCadastros,
+    });
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+};
+
 module.exports = {
   listar,
   buscarPorId,
   criar,
   atualizar,
   excluir,
+  estatisticasResumo,
 };

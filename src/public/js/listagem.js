@@ -3,6 +3,8 @@ const tbody = document.getElementById('lista-clientes');
 const totalEl = document.getElementById('clientes-total');
 
 let clientes = [];
+/** Lista atualmente exibida na tabela (filtro + ordenação), usada na exportação CSV. */
+let listaVisivel = [];
 let sortCampo = 'nome';
 let sortDir = 1;
 
@@ -45,7 +47,43 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+function escapeCsvCell(val) {
+  const s = String(val ?? '');
+  if (/[;"\r\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  return s;
+}
+
+function exportarCsv() {
+  if (!listaVisivel.length) {
+    alert('Não há linhas para exportar na visualização atual (ajuste a busca ou cadastre clientes).');
+    return;
+  }
+  const header = ['Nome', 'Email', 'Telefone', 'Endereço', 'Cadastrado em'];
+  const linhas = [header.join(';')];
+  for (const c of listaVisivel) {
+    linhas.push(
+      [
+        escapeCsvCell(c.nome),
+        escapeCsvCell(c.email),
+        escapeCsvCell(c.telefone || ''),
+        escapeCsvCell(c.endereco || ''),
+        escapeCsvCell(formatCadastro(c.createdAt)),
+      ].join(';')
+    );
+  }
+  const bom = '\ufeff';
+  const blob = new Blob([bom + linhas.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const hoje = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+  a.href = url;
+  a.download = `clientes_${hoje}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function atualizarTabela(arr, totalCadastrado) {
+  listaVisivel = arr;
   tbody.innerHTML = '';
   if (arr.length === 0) {
     tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhum cliente encontrado.</td></tr>';
@@ -108,6 +146,7 @@ async function carregarLista() {
     aplicarFiltroEOrdenacao();
   } catch (err) {
     clientes = [];
+    listaVisivel = [];
     atualizarTotal(0);
     tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Erro ao carregar: ' + escapeHtml(err.message) + '</td></tr>';
   }
@@ -129,6 +168,8 @@ async function excluir(id, row) {
 }
 
 document.getElementById('busca')?.addEventListener('input', aplicarFiltroEOrdenacao);
+
+document.getElementById('btn-exportar-csv')?.addEventListener('click', exportarCsv);
 
 document.querySelectorAll('th[data-sort]').forEach(th => {
   th.addEventListener('click', () => {

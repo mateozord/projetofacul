@@ -46,7 +46,8 @@ npm start
 
 3. Acesse no navegador: **http://localhost:3000**
 
-- **Listagem:** `http://localhost:3000` ou `http://localhost:3000/index.html`
+- **Listagem:** `http://localhost:3000` ou `http://localhost:3000/index.html` (inclui **exportação CSV** da visualização atual — busca e ordenação)
+- **Painel (dashboard):** `http://localhost:3000/dashboard` ou `http://localhost:3000/dashboard.html` — estatísticas, **gráfico de cadastros por dia** (14 dias) e últimos registros
 - **Novo cliente:** `http://localhost:3000/form.html`
 - **Editar:** abra um cliente pela listagem e clique em "Editar", ou acesse `http://localhost:3000/form.html?id=<ID_DO_CLIENTE>`
 
@@ -55,6 +56,7 @@ npm start
 | Método | Rota                | Descrição                 |
 |--------|----------------------|----------------------------|
 | GET    | `/api/clientes`      | Lista todos os clientes   |
+| GET    | `/api/clientes/estatisticas/resumo` | Resumo para o painel: totais, série diária (14 dias), últimos cadastros |
 | GET    | `/api/clientes/:id`  | Retorna um cliente por ID |
 | POST   | `/api/clientes`      | Cria cliente (body JSON)   |
 | PUT    | `/api/clientes/:id`  | Atualiza cliente           |
@@ -79,6 +81,11 @@ Exemplo de body para POST/PUT:
 - **Cadastrado em:** cada documento armazena `createdAt` (MongoDB/Mongoose). Na listagem, a coluna **Cadastrado em** exibe data e hora em formato brasileiro e permite ordenação.
 
 No formulário, o campo **telefone** aceita máscara no padrão brasileiro `(DD) NNNNN-NNNN` ou `(DD) NNNN-NNNN`.
+
+**Painel e exportação**
+
+- O **Painel** consome estatísticas agregadas no servidor (`GET /api/clientes/estatisticas/resumo`) e exibe um **gráfico de barras** (Chart.js) com cadastros por dia nos últimos 14 dias (fuso America/São_Paulo), além de cartões com totais e indicador de telefone preenchido.
+- Na listagem, **Exportar CSV** gera um arquivo separado por `;` (UTF-8 com BOM) com exatamente os registros visíveis após busca e ordenação.
 
 ## Board do projeto
 

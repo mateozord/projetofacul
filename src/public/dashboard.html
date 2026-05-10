@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel — Clientes</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container container-wide">
+    <nav class="site-nav" aria-label="Principal">
+      <a href="index.html" class="site-nav-link">Listagem</a>
+      <span class="site-nav-link site-nav-current" aria-current="page">Painel</span>
+    </nav>
+
+    <header class="page-header">
+      <div>
+        <h1>Painel</h1>
+        <p class="page-subtitle">Visão geral dos cadastros: volume, tendência recente e últimos registros.</p>
+      </div>
+      <div class="page-header-actions">
+        <a href="index.html" class="btn btn-secondary">Ver tabela</a>
+        <a href="form.html" class="btn btn-primary">Novo cliente</a>
+      </div>
+    </header>
+
+    <section id="dash-erro" class="dash-erro" style="display: none;" role="alert"></section>
+
+    <section class="dash-stats" id="dash-stats" aria-live="polite">
+      <article class="dash-card">
+        <span class="dash-card-label">Total de clientes</span>
+        <strong id="stat-total" class="dash-card-value">—</strong>
+      </article>
+      <article class="dash-card dash-card-accent">
+        <span class="dash-card-label">Novos nos últimos 7 dias</span>
+        <strong id="stat-7" class="dash-card-value">—</strong>
+      </article>
+      <article class="dash-card">
+        <span class="dash-card-label">Novos nos últimos 30 dias</span>
+        <strong id="stat-30" class="dash-card-value">—</strong>
+      </article>
+      <article class="dash-card">
+        <span class="dash-card-label">Com telefone preenchido</span>
+        <strong id="stat-tel" class="dash-card-value">—</strong>
+        <span id="stat-tel-sub" class="dash-card-sub"></span>
+      </article>
+    </section>
+
+    <section class="dash-chart-section">
+      <h2 class="dash-section-title">Cadastros por dia (últimos 14 dias)</h2>
+      <p class="dash-section-desc">Barras mostram quantos clientes foram cadastrados em cada dia (fuso America/São_Paulo).</p>
+      <div class="dash-chart-wrap">
+        <canvas id="chart-cadastros" aria-label="Gráfico de cadastros por dia"></canvas>
+      </div>
+    </section>
+
+    <section class="dash-recent">
+      <h2 class="dash-section-title">Últimos cadastros</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Email</th>
+              <th class="col-cadastro-th">Cadastrado em</th>
+            </tr>
+          </thead>
+          <tbody id="dash-ultimos">
+            <tr><td colspan="3" class="empty-state">Carregando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

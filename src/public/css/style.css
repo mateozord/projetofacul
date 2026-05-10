@@ -33,6 +33,126 @@ body {
   margin: 0 auto;
 }
 
+.container-wide {
+  max-width: 1120px;
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.15rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.site-nav-link {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.site-nav-link:hover {
+  color: var(--primary);
+}
+
+.site-nav-current {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.page-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dash-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+}
+
+.dash-card-accent {
+  border-color: rgba(37, 99, 235, 0.35);
+  background: linear-gradient(145deg, #ffffff 0%, #eff6ff 100%);
+}
+
+.dash-card-label {
+  display: block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.dash-card-value {
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.dash-card-sub {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--text-light);
+}
+
+.dash-chart-section {
+  margin-bottom: 1.75rem;
+}
+
+.dash-section-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+}
+
+.dash-section-desc {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.dash-chart-wrap {
+  position: relative;
+  height: min(360px, 70vw);
+  min-height: 260px;
+  padding: 0.5rem 0.35rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.dash-erro {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.92rem;
+}
+
+.dash-recent {
+  margin-bottom: 2rem;
+}
+
 h1 {
   margin: 0;
   font-size: 1.75rem;
@@ -363,6 +483,11 @@ tbody tr:hover td {
 
   .page-header .btn {
     align-self: flex-start;
+  }
+
+  .page-header-actions {
+    justify-content: flex-start;
+    width: 100%;
   }
 
   .form-grid {
