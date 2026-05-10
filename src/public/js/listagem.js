@@ -15,6 +15,13 @@ function atualizarTotal(exibindo, totalCadastrado) {
   }
 }
 
+function formatCadastro(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '-';
+  return d.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+}
+
 function renderLinha(cliente) {
   const tr = document.createElement('tr');
   tr.innerHTML = `
@@ -22,6 +29,7 @@ function renderLinha(cliente) {
     <td class="secondary-info">${escapeHtml(cliente.email)}</td>
     <td class="muted-info">${escapeHtml(cliente.telefone || '-')}</td>
     <td class="muted-info">${escapeHtml(cliente.endereco || '-')}</td>
+    <td class="col-cadastro muted-info">${escapeHtml(formatCadastro(cliente.createdAt))}</td>
     <td class="actions-cell">
       <a href="form.html?id=${encodeURIComponent(cliente._id)}" class="btn btn-secondary btn-sm">Editar</a>
       <button type="button" class="btn btn-danger btn-sm" data-id="${cliente._id}">Excluir</button>
@@ -40,7 +48,7 @@ function escapeHtml(text) {
 function atualizarTabela(arr, totalCadastrado) {
   tbody.innerHTML = '';
   if (arr.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Nenhum cliente encontrado.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhum cliente encontrado.</td></tr>';
   } else {
     arr.forEach(c => tbody.appendChild(renderLinha(c)));
   }
@@ -59,6 +67,11 @@ function filtrarPorBusca(lista, texto) {
 
 function ordenar(lista, campo, dir) {
   return [...lista].sort((a, b) => {
+    if (campo === 'createdAt') {
+      const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dir * (ta - tb);
+    }
     let va = a[campo];
     let vb = b[campo];
     if (va == null || va === '') va = '';
@@ -96,7 +109,7 @@ async function carregarLista() {
   } catch (err) {
     clientes = [];
     atualizarTotal(0);
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Erro ao carregar: ' + escapeHtml(err.message) + '</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Erro ao carregar: ' + escapeHtml(err.message) + '</td></tr>';
   }
 }
 

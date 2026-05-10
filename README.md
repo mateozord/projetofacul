@@ -73,6 +73,13 @@ Exemplo de body para POST/PUT:
 
 `nome` e `email` são obrigatórios; `telefone` e `endereco` são opcionais.
 
+**Regras de negócio**
+
+- **Email único:** não é permitido cadastrar dois clientes com o mesmo email. Em caso de duplicidade, a API responde com status **409** e mensagem clara.
+- **Cadastrado em:** cada documento armazena `createdAt` (MongoDB/Mongoose). Na listagem, a coluna **Cadastrado em** exibe data e hora em formato brasileiro e permite ordenação.
+
+No formulário, o campo **telefone** aceita máscara no padrão brasileiro `(DD) NNNNN-NNNN` ou `(DD) NNNN-NNNN`.
+
 ## Board do projeto
 
 **Link público do board (para entrega ao professor):**

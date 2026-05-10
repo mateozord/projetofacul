@@ -24,7 +24,7 @@ async function carregarCliente() {
     const cliente = await res.json();
     document.getElementById('nome').value = cliente.nome || '';
     document.getElementById('email').value = cliente.email || '';
-    document.getElementById('telefone').value = cliente.telefone || '';
+    document.getElementById('telefone').value = aplicarMascaraTelefone(cliente.telefone || '');
     document.getElementById('endereco').value = cliente.endereco || '';
   } catch (err) {
     erroMsg.textContent = err.message;
@@ -39,6 +39,22 @@ function mostrarErro(msg) {
 
 function esconderErro() {
   erroMsg.style.display = 'none';
+}
+
+function aplicarMascaraTelefone(valorBruto) {
+  const d = valorBruto.replace(/\D/g, '').slice(0, 11);
+  if (d.length === 0) return '';
+  if (d.length <= 2) return `(${d}`;
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+}
+
+const telInput = document.getElementById('telefone');
+if (telInput) {
+  telInput.addEventListener('input', () => {
+    telInput.value = aplicarMascaraTelefone(telInput.value);
+  });
 }
 
 form.addEventListener('submit', async (e) => {

@@ -29,7 +29,7 @@ body {
 }
 
 .container {
-  max-width: 960px;
+  max-width: 1040px;
   margin: 0 auto;
 }
 
@@ -202,6 +202,12 @@ th.col-primary {
 
 th.col-secondary {
   color: #334155;
+}
+
+th.col-cadastro-th,
+td.col-cadastro {
+  white-space: nowrap;
+  font-size: 0.88rem;
 }
 
 th.sortable {

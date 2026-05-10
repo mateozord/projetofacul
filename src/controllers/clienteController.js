@@ -1,5 +1,16 @@
 const Cliente = require('../models/Cliente');
 
+function responderErroMongo(err, res) {
+  if (err.code !== 11000) return false;
+  const campo = err.keyPattern && Object.keys(err.keyPattern)[0];
+  if (campo === 'email') {
+    res.status(409).json({ erro: 'Este email já está cadastrado.' });
+    return true;
+  }
+  res.status(409).json({ erro: 'Registro duplicado.' });
+  return true;
+}
+
 const listar = async (req, res) => {
   try {
     const clientes = await Cliente.find().sort({ createdAt: -1 });
@@ -33,6 +44,7 @@ const criar = async (req, res) => {
     const cliente = await Cliente.create({ nome, email, telefone: telefone || '', endereco: endereco || '' });
     res.status(201).json(cliente);
   } catch (err) {
+    if (responderErroMongo(err, res)) return;
     res.status(400).json({ erro: err.message });
   }
 };
@@ -52,6 +64,7 @@ const atualizar = async (req, res) => {
     if (err.name === 'CastError') {
       return res.status(400).json({ erro: 'ID inválido' });
     }
+    if (responderErroMongo(err, res)) return;
     res.status(400).json({ erro: err.message });
   }
 };
